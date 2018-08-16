@@ -41,6 +41,8 @@ for i in range(total):
         pos += 1
 print('Accuracy: {:.4f}'.format(pos/total))
 
+# --
+
 amr_pred = pred['pred'].apply(lambda x: vocabulary.construccion_amr_objetos(x))
 amr_pred = pd.DataFrame(amr_pred)
 amr_pred.columns = ['amr_pred']
