@@ -1,47 +1,50 @@
 import pandas as pd
 import data
-import pickle
+from tqdm import tqdm
 import vocabulary
 
-from keras.models import load_model
+from sys import stdout
 from model import Model
 
+training = True
+
 params = data.init()
-data = data.prepare(params)
+model = Model()
 
-# model = Model(params)
-# model.train(data['train'], data['target'], params)
-# model.save('output/nn_entities.h5')
+if training is True:
+    datasets = data.prepare(params)
+    data.save(datasets, params)
+    model.init(params)
+    model.train(datasets['train'], datasets['target'], params)
+    model.save('output/nn_entities.h5')
+else:
+    datasets = data.read(params)
+    model.load('output/nn_entities.h5')
 
-model = load_model('output/nn_entities.h5')
-
-# loading
-with open('tokenizer.pickle', 'rb') as handle:
-    tokenizer = pickle.load(handle)
-import numpy as np
-r = tokenizer.texts_to_sequences(np.array(['durante el mes de julio me desplazo a slough']))
-resp = vocabulary.evaluacion_objeto('tengo que pagar franquicia por operacion',
-                                    model, params)
+resp = model.predict('quiero saber mi seguro cubre que me corten la cabeza',
+                     params)
+print(resp)
 
 pred = []
-for sentence in data['utt_test']['frase']:
-    traduccion = vocabulary.evaluacion_objeto(sentence, model, params)
+for sentence in tqdm(datasets['utt_test']['frase'], ascii=True, file=stdout):
+    traduccion = model.predict(sentence, params)
     pred.append(traduccion)
+
 pred = pd.DataFrame(pred)
 pred.columns = ['pred']
 amr_pred = pred['pred'].apply(lambda x: vocabulary.construccion_amr_objetos(x))
 amr_pred = pd.DataFrame(amr_pred)
 amr_pred.columns = ['amr_pred']
-frases_test = data['utt_test'].reset_index()
-hash_test = data['hash_test'].reset_index()
-amr_test = data['amr_test'].reset_index()
+frases_test = datasets['utt_test'].reset_index()
+hash_test = datasets['hash_test'].reset_index()
+amr_test = datasets['amr_test'].reset_index()
 evaluacion = pd.concat(
     [
         frases_test[['frase']], hash_test[['tag']], amr_test[['amr']], pred,
         amr_pred
     ],
     axis=1)
-evaluacion.to_csv("./output/evaluacion.csv", encoding='latin1')
+evaluacion.to_csv("./output/evaluacion.csv", encoding='utf8')
 
 evaluacion = pd.read_csv(
     './output/evaluacion.csv', sep=',', encoding="Latin1")  # TODO

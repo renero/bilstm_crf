@@ -44,9 +44,7 @@ def encode_input(dataset_name, datasets, params):
     datasets['vocabulary'] = np.array(list(tokenizer.index_word.values()))
 
     # saving
-    with open('tokenizer.pickle', 'wb') as handle:
-        pickle.dump(tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
+    vocabulary.save(tokenizer, params)
     return padded_encodings
 
 
@@ -131,7 +129,7 @@ def prepare(params):
         datos[['frase']],
         datos[['tag']],
         datos[['amr']],
-        test_size=0.30,
+        test_size=params['test_size'],
         random_state=50)
 
     # Cambiar unk por _UNK
@@ -146,14 +144,18 @@ def prepare(params):
     datasets['amr_train'] = A_dev
     datasets['amr_test'] = A_tst
 
-    # datasets['vocabulary'] = vocabulary.create(
-    #     datasets['utt_train'],
-    #     tokenizer=None,
-    #     normalize_digits=False,
-    #     params=params)
-
     datasets = training_sets(datasets, params)
     return datasets
+
+
+def save(datasets, params):
+    with open('datasets.pickle', 'wb') as handle:
+        pickle.dump(datasets, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+
+def read(params):
+    with open('datasets.pickle', 'rb') as handle:
+        return pickle.load(handle)
 
 
 def info(datasets):

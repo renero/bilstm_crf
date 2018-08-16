@@ -55,6 +55,6 @@ max_length = 6
 padded_docs = pad_sequences(encoded_docs, maxlen=max_length, padding='post')
 print(padded_docs)
 t.index_word.values()
-r = t.texts_to_sequences(array(['I made a good work']))
+r = t.texts_to_sequences(array(['I made a good work', 'I did effort']))
 r
-t.index_word
+t.index_word[6]

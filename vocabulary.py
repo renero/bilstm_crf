@@ -1,4 +1,5 @@
 import numpy as np
+import pickle
 import tensorflow as tf
 
 from os.path import join
@@ -35,34 +36,16 @@ def basic_tokenizer(sentence, binary=False):
     return [w for w in words if w]
 
 
-def save(vocab_list, params):
-    if len(vocab_list) > params['max_vocabulary_size']:
-        vocab_list = vocab_list[:params['max_vocabulary_size']]
-    if 'vocabulary_path' not in params:
-        vocabulary_path = join(
-            join(params['working_path'], 'output'),
-            params['output_vocabulary'])
-        params['vocabulary_path'] = vocabulary_path
-    with tf.gfile.GFile(params['vocabulary_path'], mode="wb") as vocab_file:
-        for w in vocab_list:
-            vocab_file.write(w + b"\n")
-    print('Vocabulary saved to', params['vocabulary_path'])
+def save(tokenizer, params):
+    with open('tokenizer.pickle', 'wb') as handle:
+        pickle.dump(tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
 # Inicialización del universo de palabras
 def read(params):
-    print("Reading vocabulary...", flush=True)
-    if tf.gfile.Exists(params['vocabulary_path']):
-        rev_vocab = []
-        with tf.gfile.GFile(params['vocabulary_path'], mode="rb") as f:
-            rev_vocab.extend(f.readlines())
-        rev_vocab = [line.strip() for line in rev_vocab]
-        vocab = dict([(x, y) for (y, x) in enumerate(rev_vocab)])
-        print('done.', flush=True)
-        return vocab, rev_vocab
-    else:
-        raise ValueError("Vocabulary file %s not found.",
-                         params['vocabulary_path'])
+    with open('tokenizer.pickle', 'rb') as handle:
+        tokenizer = pickle.load(handle)
+    return tokenizer
 
 
 def create(infile, tokenizer=None, normalize_digits=False, params=None):
@@ -139,40 +122,3 @@ def construccion_amr_objetos(sentence):  # TODO
         amr = amr + "<o:reembolso> "
 
     return amr
-
-
-def evaluacion_objeto(sentence, model, params):
-    # Tratamieto
-    tratada = cleanup(sentence)
-    vocab, _ = read(params)
-
-    # Tokenizado
-    token_sentence = encode_sentence(
-        tratada, vocab, tokenizer=None, normalize_digits=False)
-    largo_real_frase = len(token_sentence)
-    while len(token_sentence) < params['largo_max']:
-        token_sentence.append(0)
-    test = []
-    test += [token_sentence]
-    test = np.asarray(test)
-
-    # Predicción
-    predict = model.predict(test)
-    traduccion = []
-    for i in range(0, largo_real_frase):  # TODO
-        if np.argmax(predict[0][i]) == 0:
-            traduccion += ['x']
-        if np.argmax(predict[0][i]) == 1:
-            traduccion += ['ot']
-        if np.argmax(predict[0][i]) == 2:
-            traduccion += ['oc']
-        if np.argmax(predict[0][i]) == 3:
-            traduccion += ['oh']
-        if np.argmax(predict[0][i]) == 4:
-            traduccion += ['or']
-        if np.argmax(predict[0][i]) == 5:
-            traduccion += ['os']
-
-    # Escritura en fichero:
-    traduccion = " ".join(str(x) for x in traduccion)
-    return traduccion
