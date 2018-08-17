@@ -10,3 +10,12 @@ All this work is based on the original ideas exposed in [original paper by Buill
 From using the external CRF layer, there're some issues when saving and loading the model, all of them addressed in [this page](https://github.com/keras-team/keras-contrib/issues/125).
 
 The final intention is to build a system that resembles very much the achieved by the [anago](https://github.com/Hironsan/anago) system which uses bidirectional LSTMs with CRF.
+
+Note: It would be interesting to know more about the NLU capabilities shown in [this repo])https://github.com/SNUDerek/multiLSTM) as it introduces a nice combination of slot_filling and intent detection, together with sequence tagging as in this example:
+
+```
+query: i want a first class flight to los angeles
+slots:
+{'class_type': 'first class', 'toloc.city_name': 'los angeles'}
+intent: atis_flight
+```
