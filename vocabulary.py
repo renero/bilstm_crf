@@ -1,8 +1,6 @@
 import pickle
 
-from os.path import join
 from re import sub, compile
-from sys import stdout
 from unidecode import unidecode
 
 # Expresiones regulares para partir la frase

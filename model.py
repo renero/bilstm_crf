@@ -7,12 +7,14 @@ from keras.models import Sequential
 from keras.layers import Dense, Embedding, LSTM
 from keras.layers import Bidirectional, TimeDistributed
 from keras_contrib.layers import CRF
-from keras_contrib.utils import save_load_utils
 
 
 class Model:
 
     model = Sequential()
+    _embedded_size = 128
+    _bidirectional_size = 128
+    _dense_size = 128
 
     def __init__(self):
         pass
@@ -21,25 +23,26 @@ class Model:
         self.model.add(
             Embedding(
                 params['vocabulary_size'],
-                128,
+                self._embedded_size,
                 input_length=params['largo_max']))
-        self.model.add(LSTM(64, return_sequences=True))
-        self.model.add(Bidirectional(LSTM(128, return_sequences=True)))
-        self.model.add(Dense(128, activation='tanh'))
+        # self.model.add(LSTM(64, return_sequences=True))
+        self.model.add(Bidirectional(LSTM(self._bidirectional_size,
+                                          return_sequences=True)))
+        self.model.add(Dense(self._dense_size, activation='tanh'))
         if params['CRF'] is True:
             crf = CRF(params['num_tags'], sparse_target=False)
             self.model.add(crf)
             loss = crf.loss_function
+            metric = crf.accuracy
         else:
             self.model.add(
                 TimeDistributed(
                     Dense(params['num_tags'], activation='softmax')))
             loss = 'categorical_crossentropy'
+            metric = 'accuracy'
         self.model.summary()
         self.model.compile(
-            loss=loss, optimizer='adam', metrics=[crf.accuracy])
-        # self.model.compile(
-        # 'adam', 'categorical_crossentropy', metrics=['accuracy'])
+            loss=loss, optimizer='adam', metrics=[metric])
 
     def train(self, train, target, params):
         print('Train...', flush=True)
