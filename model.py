@@ -26,8 +26,9 @@ class Model:
                 self._embedded_size,
                 input_length=params['largo_max']))
         # self.model.add(LSTM(64, return_sequences=True))
-        self.model.add(Bidirectional(LSTM(self._bidirectional_size,
-                                          return_sequences=True)))
+        self.model.add(
+            Bidirectional(
+                LSTM(self._bidirectional_size, return_sequences=True)))
         self.model.add(Dense(self._dense_size, activation='tanh'))
         if params['CRF'] is True:
             crf = CRF(params['num_tags'], sparse_target=False)
@@ -41,8 +42,7 @@ class Model:
             loss = 'categorical_crossentropy'
             metric = 'accuracy'
         self.model.summary()
-        self.model.compile(
-            loss=loss, optimizer='adam', metrics=[metric])
+        self.model.compile(loss=loss, optimizer='adam', metrics=[metric])
 
     def train(self, train, target, params):
         print('Train...', flush=True)
@@ -94,7 +94,7 @@ class Model:
             self.model = load_model(
                 filename, custom_objects=self.create_custom_objects())
         else:
-            self.model.load_model(filename)
+            self.model = load_model(filename)
 
     def predict(self, sentence, params):
         # Tratamieto

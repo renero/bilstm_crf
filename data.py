@@ -76,13 +76,6 @@ def training_sets(datasets, params):
     target = build_response_input('hash_train', datasets, params)
     datasets['train'] = train
     datasets['target'] = target
-
-    print('Training dataset lengths (utterances/responses): {:d}/{:d}'.format(
-        len(train), len(target)))
-    print('Printout of instance #110 in dataset')
-    print('U> \'{}\''.format(datasets['utt_train'].iloc[110]['frase']))
-    print('H> \'{}\''.format(datasets['hash_train'].iloc[110]['tag']))
-    pprint.pprint(train[110])
     return datasets
 
 
@@ -134,7 +127,7 @@ def read(params):
         return pickle.load(handle)
 
 
-def info(datasets):
+def info(datasets, params):
     len_total = len(datasets['utt_train']) + len(datasets['utt_test'])
     print("Dataset total vol.", len_total)
     print('Training vols. 70% {:.0f}: (utts/resps): {:d}/{:d}'.format(
@@ -143,3 +136,12 @@ def info(datasets):
     print('Test data vols. 30% {:.0f}: (utts/resps): {:d}/{:d}'.format(
         len_total * 0.3, len(datasets['utt_test']),
         len(datasets['hash_test'])))
+    print('Training dataset lengths (utterances/responses): {:d}/{:d}'.format(
+        len(params['train']), len(params['target'])))
+
+
+def info_sentence(datasets, index):
+    print('Printout of instance #{:d} in dataset'.format(index))
+    print('U> \'{}\''.format(datasets['utt_train'].iloc[index]['frase']))
+    print('H> \'{}\''.format(datasets['hash_train'].iloc[index]['tag']))
+    pprint.pprint(datasets['train'][index])

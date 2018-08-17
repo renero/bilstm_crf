@@ -5,7 +5,7 @@ def_nn_name: './output/BI_LSTM_entities.h5'
 largo_max: 40
 test_size: 0.05
 num_tags: 6
-CRF: True
+CRF: False
 
 _PAD: '_PAD'
 _GO: '_GO'
