@@ -11,7 +11,7 @@ From using the external CRF layer, there're some issues when saving and loading 
 
 The final intention is to build a system that resembles very much the achieved by the [anago](https://github.com/Hironsan/anago) system which uses bidirectional LSTMs with CRF.
 
-Note: It would be interesting to know more about the NLU capabilities shown in [this repo])https://github.com/SNUDerek/multiLSTM) as it introduces a nice combination of slot_filling and intent detection, together with sequence tagging as in this example:
+Note: It would be interesting to know more about the NLU capabilities shown in [this repo](https://github.com/SNUDerek/multiLSTM) as it introduces a nice combination of slot_filling and intent detection, together with sequence tagging as in this example:
 
 ```
 query: i want a first class flight to los angeles
