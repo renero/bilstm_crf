@@ -7,19 +7,16 @@ from tqdm import tqdm
 from sys import stdout
 from model import Model
 
-training = True
-
 params = data.init()
 model = Model()
 
-if training is True:
-    datasets = data.prepare(params)
-    data.save(datasets, params)
+datasets = data.prepare(params)
+if params['mode'] == 'training':
     model.init(params)
     model.train(datasets['train'], datasets['target'], params)
     model.save('output/nn_entities.h5')
 else:
-    datasets = data.read(params)
+    model.init(params)
     model.load('output/nn_entities.h5')
 
 

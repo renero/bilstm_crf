@@ -6,6 +6,8 @@ from keras.models import load_model
 from keras.models import Sequential
 from keras.layers import Dense, Embedding, LSTM
 from keras.layers import Bidirectional, TimeDistributed
+from keras_contrib.layers import CRF
+from keras_contrib.utils import save_load_utils
 
 
 class Model:
@@ -24,9 +26,13 @@ class Model:
         self.model.add(LSTM(64, return_sequences=True))
         self.model.add(Bidirectional(LSTM(128, return_sequences=True)))
         self.model.add(TimeDistributed(Dense(6, activation='sigmoid')))
+        crf = CRF(params['num_tags'])  # CRF layer
+        self.model.add(crf)
         self.model.summary()
         self.model.compile(
-            'adam', 'categorical_crossentropy', metrics=['accuracy'])
+            loss=crf.loss_function, optimizer='adam', metrics=[crf.accuracy])
+        # self.model.compile(
+        # 'adam', 'categorical_crossentropy', metrics=['accuracy'])
 
     def train(self, train, target, params):
         print('Train...', flush=True)
@@ -34,21 +40,25 @@ class Model:
             train,
             target,
             batch_size=params['batch_size'],
+            validation_split=params['validation_split'],
             epochs=params['num_epochs'])
         print('done.', flush=True)
 
-    def save(self, name=None, params=None):
+    def save(self, filename=None, params=None):
         """Saves the network to a file"""
-        if name is None:
+        if filename is None:
             if params is not None:
                 self.model.save(params['default_nn_name'])
             else:
                 self.model.save('./output/BI_LSTM_entities.h5')
         else:
-            self.model.save(name)
+            # self.model.save(filename)
+            save_load_utils.save_all_weights(
+                self.model, filename, include_optimizer=False)
 
-    def load(self, model_name):
-        self.model = load_model(model_name)
+    def load(self, filename):
+        # self.model = load_model(filename)
+        save_load_utils.load_all_weights(self.model, filename)
 
     def predict(self, sentence, params):
         # Tratamieto
