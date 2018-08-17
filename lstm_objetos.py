@@ -1,8 +1,9 @@
-import pandas as pd
 import data
-from tqdm import tqdm
+import pandas as pd
+import sys
 import vocabulary
 
+from tqdm import tqdm
 from sys import stdout
 from model import Model
 
@@ -21,10 +22,11 @@ else:
     datasets = data.read(params)
     model.load('output/nn_entities.h5')
 
-resp = model.predict('quiero saber mi seguro cubre que me corten la cabeza',
-                     params)
-print(resp)
 
+print('Evaluating test set performance...', flush=True)
+frases_test = datasets['utt_test'].reset_index()
+hash_test = datasets['hash_test'].reset_index()
+amr_test = datasets['amr_test'].reset_index()
 pred = []
 for sentence in tqdm(datasets['utt_test']['frase'], ascii=True, file=stdout):
     traduccion = model.predict(sentence, params)
@@ -32,23 +34,21 @@ for sentence in tqdm(datasets['utt_test']['frase'], ascii=True, file=stdout):
 
 pred = pd.DataFrame(pred)
 pred.columns = ['pred']
-
-total = hash_test.shape[0]
+total_utts = hash_test.shape[0]
 hash_test = datasets['hash_test'].reset_index()
-pos = 0
-for i in range(total):
+positives = 0
+for i in range(total_utts):
     if pred.iloc[i][0] == hash_test.iloc[i]['tag']:
-        pos += 1
-print('Accuracy: {:.4f}'.format(pos/total))
+        positives += 1
+print('Accuracy: {:.4f}'.format(positives/total_utts))
+sys.exit(0)
 
 # --
 
 amr_pred = pred['pred'].apply(lambda x: vocabulary.construccion_amr_objetos(x))
 amr_pred = pd.DataFrame(amr_pred)
 amr_pred.columns = ['amr_pred']
-frases_test = datasets['utt_test'].reset_index()
-hash_test = datasets['hash_test'].reset_index()
-amr_test = datasets['amr_test'].reset_index()
+
 evaluacion = pd.concat(
     [
         frases_test[['frase']], hash_test[['tag']], amr_test[['amr']], pred,

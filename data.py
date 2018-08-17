@@ -22,12 +22,6 @@ def init():
     return params
 
 
-def build_training_input(dataset_name, datasets, params):
-    """Builds an encoded version of the input senteces"""
-    train_v0 = vocabulary.encode(dataset_name, datasets, params=params)
-    return np.asarray(train_v0)
-
-
 def encode_input(dataset_name, datasets, params):
     """Simplified, Keras-way, creation of vocabulary, saving it
     padding and encoding."""
@@ -74,24 +68,6 @@ def build_response_input(dataset_name, data, params):
             fila_lista.append([1, 0, 0, 0, 0, 0])
         target_lista += [fila_lista]
     return np.array(target_lista)
-
-
-def build_training_datasets(datasets, params):
-    train = build_training_input('utt_train', datasets, params)
-    target = build_response_input('hash_train', datasets, params)
-    datasets['train'] = train
-    datasets['target'] = target
-
-    print('Training dataset lengths (utterances/responses): {:d}/{:d}'.format(
-        len(train), len(target)))
-    print('Printout of instance #110 in dataset')
-    print('U> \'{}\''.format(datasets['utt_train'].iloc[110]['frase']))
-    print('H> \'{}\''.format(datasets['hash_train'].iloc[110]['tag']))
-
-    pprint.pprint(train[110])
-    # print('Target array shape:', len(target[110]))
-    # pprint.pprint(target[110])
-    return datasets
 
 
 def training_sets(datasets, params):

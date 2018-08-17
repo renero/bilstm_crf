@@ -3,7 +3,7 @@ input_filename: 'resultado_cruce.csv'
 output_vocabulary: 'diccionario.txt'
 def_nn_name: './output/BI_LSTM_entities.h5'
 largo_max: 40
-test_size: 0.1
+test_size: 0.05
 
 _PAD: '_PAD'
 _GO: '_GO'
