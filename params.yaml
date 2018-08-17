@@ -1,5 +1,3 @@
-mode: 'test'  # Can be training/test
-
 working_path: '/Users/renero/Code/BOTs/BOT_PoC/model/model_evaluation/01_Entrenamiento/01_BILSTM_objeto'
 input_filename: 'resultado_cruce.csv'
 output_vocabulary: 'diccionario.txt'
@@ -7,6 +5,7 @@ def_nn_name: './output/BI_LSTM_entities.h5'
 largo_max: 40
 test_size: 0.05
 num_tags: 6
+CRF: True
 
 _PAD: '_PAD'
 _GO: '_GO'

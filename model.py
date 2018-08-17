@@ -25,12 +25,19 @@ class Model:
                 input_length=params['largo_max']))
         self.model.add(LSTM(64, return_sequences=True))
         self.model.add(Bidirectional(LSTM(128, return_sequences=True)))
-        self.model.add(TimeDistributed(Dense(6, activation='sigmoid')))
-        crf = CRF(params['num_tags'])  # CRF layer
-        self.model.add(crf)
+        self.model.add(Dense(128, activation='tanh'))
+        if params['CRF'] is True:
+            crf = CRF(params['num_tags'], sparse_target=False)
+            self.model.add(crf)
+            loss = crf.loss_function
+        else:
+            self.model.add(
+                TimeDistributed(
+                    Dense(params['num_tags'], activation='softmax')))
+            loss = 'categorical_crossentropy'
         self.model.summary()
         self.model.compile(
-            loss=crf.loss_function, optimizer='adam', metrics=[crf.accuracy])
+            loss=loss, optimizer='adam', metrics=[crf.accuracy])
         # self.model.compile(
         # 'adam', 'categorical_crossentropy', metrics=['accuracy'])
 
@@ -52,13 +59,39 @@ class Model:
             else:
                 self.model.save('./output/BI_LSTM_entities.h5')
         else:
-            # self.model.save(filename)
-            save_load_utils.save_all_weights(
-                self.model, filename, include_optimizer=False)
+            self.model.save(filename)
+            # save_load_utils.save_all_weights(
+            #     self.model, filename, include_optimizer=False)
 
-    def load(self, filename):
-        # self.model = load_model(filename)
-        save_load_utils.load_all_weights(self.model, filename)
+    def create_custom_objects(self):
+        instanceHolder = {"instance": None}
+
+        class ClassWrapper(CRF):
+            def __init__(self, *args, **kwargs):
+                instanceHolder["instance"] = self
+                super(ClassWrapper, self).__init__(*args, **kwargs)
+
+        def loss(*args):
+            method = getattr(instanceHolder["instance"], "loss_function")
+            return method(*args)
+
+        def accuracy(*args):
+            method = getattr(instanceHolder["instance"], "accuracy")
+            return method(*args)
+
+        return {
+            "ClassWrapper": ClassWrapper,
+            "CRF": ClassWrapper,
+            "loss": loss,
+            "accuracy": accuracy
+        }
+
+    def load(self, filename, params):
+        if params['CRF'] is True:
+            self.model = load_model(
+                filename, custom_objects=self.create_custom_objects())
+        else:
+            self.model.load_model(filename)
 
     def predict(self, sentence, params):
         # Tratamieto

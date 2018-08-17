@@ -1,44 +1,62 @@
+"""
+bilstm_crf
+
+Usage:
+    bilstm_crf train
+    bilstm_crf test
+    bilstm_crf -h | --help
+
+Options:
+  -h, --help    Show this message
+
+"""
+
 import data
 import pandas as pd
 import sys
 import vocabulary
 
+from docopt import docopt
+from model import Model
 from tqdm import tqdm
 from sys import stdout
-from model import Model
+
+if __name__ == '__main__':
+    arguments = docopt(__doc__, version='FIXME')
 
 params = data.init()
 model = Model()
 
 datasets = data.prepare(params)
-if params['mode'] == 'training':
+if arguments['train'] is True:
     model.init(params)
     model.train(datasets['train'], datasets['target'], params)
     model.save('output/nn_entities.h5')
+    sys.exit(0)
 else:
     model.init(params)
-    model.load('output/nn_entities.h5')
+    model.load('output/nn_entities.h5', params)
+    print('Evaluating test set performance...', flush=True)
 
+    frases_test = datasets['utt_test'].reset_index()
+    hash_test = datasets['hash_test'].reset_index()
+    amr_test = datasets['amr_test'].reset_index()
+    pred = []
+    for sentence in tqdm(
+            datasets['utt_test']['frase'], ascii=True, file=stdout):
+        traduccion = model.predict(sentence, params)
+        pred.append(traduccion)
 
-print('Evaluating test set performance...', flush=True)
-frases_test = datasets['utt_test'].reset_index()
-hash_test = datasets['hash_test'].reset_index()
-amr_test = datasets['amr_test'].reset_index()
-pred = []
-for sentence in tqdm(datasets['utt_test']['frase'], ascii=True, file=stdout):
-    traduccion = model.predict(sentence, params)
-    pred.append(traduccion)
-
-pred = pd.DataFrame(pred)
-pred.columns = ['pred']
-total_utts = hash_test.shape[0]
-hash_test = datasets['hash_test'].reset_index()
-positives = 0
-for i in range(total_utts):
-    if pred.iloc[i][0] == hash_test.iloc[i]['tag']:
-        positives += 1
-print('Accuracy: {:.4f}'.format(positives/total_utts))
-sys.exit(0)
+    pred = pd.DataFrame(pred)
+    pred.columns = ['pred']
+    total_utts = hash_test.shape[0]
+    hash_test = datasets['hash_test'].reset_index()
+    positives = 0
+    for i in range(total_utts):
+        if pred.iloc[i][0] == hash_test.iloc[i]['tag']:
+            positives += 1
+    print('Accuracy: {:.4f}'.format(positives / total_utts))
+    sys.exit(0)
 
 # --
 

@@ -8,3 +8,5 @@ To correctly count on CRF layer, please refer to
 All this work is based on the original ideas exposed in [original paper by Buillaume Lample](https://arxiv.org/pdf/1603.01360.pdf).
 
 From using the external CRF layer, there're some issues when saving and loading the model, all of them addressed in [this page](https://github.com/keras-team/keras-contrib/issues/125).
+
+The final intention is to build a system that resembles very much the achieved by the [anago](https://github.com/Hironsan/anago) system which uses bidirectional LSTMs with CRF.
