@@ -33,7 +33,7 @@ def read(params):
 
 
 # Construcción AMR objetos
-def construccion_amr_objetos(sentence):  # TODO
+def expand_amr(sentence):  # TODO
     amr = ''
     # Objetos:
     if sentence.find("ot") != -1:

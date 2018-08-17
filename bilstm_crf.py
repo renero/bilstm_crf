@@ -26,8 +26,8 @@ if __name__ == '__main__':
 
 params = data.init()
 model = Model()
-
 datasets = data.prepare(params)
+
 if arguments['train'] is True:
     model.init(params)
     model.train(datasets['train'], datasets['target'], params)
@@ -56,44 +56,28 @@ else:
         if pred.iloc[i][0] == hash_test.iloc[i]['tag']:
             positives += 1
     print('Accuracy: {:.4f}'.format(positives / total_utts))
-    sys.exit(0)
 
 # --
 
-amr_pred = pred['pred'].apply(lambda x: vocabulary.construccion_amr_objetos(x))
+amr_pred = pred['pred'].apply(lambda x: vocabulary.expand_amr(x))
 amr_pred = pd.DataFrame(amr_pred)
 amr_pred.columns = ['amr_pred']
 
-evaluacion = pd.concat(
+eval = pd.concat(
     [
         frases_test[['frase']], hash_test[['tag']], amr_test[['amr']], pred,
         amr_pred
     ],
     axis=1)
-evaluacion.to_csv("./output/evaluacion.csv", encoding='utf8')
+eval.to_csv("./output/eval.csv", encoding='utf8')
 
-evaluacion = pd.read_csv(
-    './output/evaluacion.csv', sep=',', encoding="Latin1")  # TODO
-print('Número de documentos de test: ', len(frases_test))
-aciertos_tag = evaluacion[evaluacion['tag'] == evaluacion['pred']]
-print('   Acierto tag: ', len(aciertos_tag), ' - ',
+eval = pd.read_csv('./output/eval.csv', sep=',', encoding="utf8")  # TODO
+print('Nr of test utterances: ', len(frases_test))
+aciertos_tag = eval[eval['tag'] == eval['pred']]
+print('   Correct classif. TAG: ', len(aciertos_tag), ' - ',
       round(len(aciertos_tag) / len(frases_test) * 100, 2), '%')
 
-aciertos_amr = evaluacion[(
-    (evaluacion['amr'] == evaluacion['amr_pred']) |
-    (evaluacion['amr'].isnull() & evaluacion['amr_pred'].isnull()))]
-print('   Acierto amr: ', len(aciertos_amr), ' - ',
+aciertos_amr = eval[((eval['amr'] == eval['amr_pred']) |
+                     (eval['amr'].isnull() & eval['amr_pred'].isnull()))]
+print('   Correct classif. AMR: ', len(aciertos_amr), ' - ',
       round(len(aciertos_amr) / len(frases_test) * 100, 2), '%')
-
-########################################
-#
-# Pruebas
-#
-########################################
-
-# model = load_model('./output/BI_LSTM_seguros_objeto.h5')
-# largo_max = 40
-# sentence = 'viajo a bla bla bla por negrocios, me cubre allí mi seguro'
-# sentence = raw_input()
-# salida = evaluacion_objeto(sentence, model, params)
-# print(salida)

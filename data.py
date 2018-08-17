@@ -81,6 +81,7 @@ def training_sets(datasets, params):
 
 def prepare(params):
     """Prepare the input datasets, and the vocabulary"""
+    print('Reading input datasets', flush=True)
     datos = pd.read_csv(
         join(join(params['working_path'], 'input'), params['input_filename']),
         sep=',',
@@ -91,6 +92,7 @@ def prepare(params):
     datos.columns = ['frase', 'tag', 'amr']
 
     # Aplicamos correcciones a las frases:
+    print('Cleaning up and splitting datasets', flush=True)
     datos['frase'] = datos['frase'].apply(lambda x: vocabulary.cleanup(x))
     datos['tag'] = datos['tag'].apply(lambda x: vocabulary.cleanup(x))
     # frases = datos[['frase']]
@@ -101,7 +103,6 @@ def prepare(params):
         test_size=params['test_size'],
         random_state=50)
 
-    # Cambiar unk por _UNK
     U_dev['frase'] = U_dev['frase'].apply(lambda x: x.replace('unk', '_UNK'))
     U_tst['frase'] = U_tst['frase'].apply(lambda x: x.replace('unk', '_UNK'))
 
@@ -113,7 +114,9 @@ def prepare(params):
     datasets['amr_train'] = A_dev
     datasets['amr_test'] = A_tst
 
+    print('Encoding training sets...', flush=True)
     datasets = training_sets(datasets, params)
+    print('done.')
     return datasets
 
 
