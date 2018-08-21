@@ -11,13 +11,9 @@ Options:
   -h, --help    Show this message
 """
 
-import data
-import pandas as pd
-
+from data import Data
 from docopt import docopt, DocoptExit
 from model import Model
-from tqdm import tqdm
-from sys import stdout
 
 if __name__ == '__main__':
     try:
@@ -29,37 +25,23 @@ if __name__ == '__main__':
         arguments['test'] = False
         arguments['predict'] = True
 
-params = data.init()
+data = Data()
+params = data.params
 model = Model().init(params)
 
 if arguments['train'] is True:
-    datasets = data.prepare(params)
+    datasets = data.prepare()
     model.train(datasets['train'], datasets['target'], params)
     model.save(params['def_nn_name'])
+    data.save_tokenizer(params['def_tokenizer_name'])
 elif arguments['test'] is True:
-    datasets = data.prepare(params)
-    model.load(params['def_nn_name'], params['CRF'])
-    print('Evaluating test set performance...', flush=True)
-    frases_test = datasets['utt_test'].reset_index()
-    hash_test = datasets['hash_test'].reset_index()
-    amr_test = datasets['amr_test'].reset_index()
-    pred = []
-    for sentence in tqdm(
-            datasets['utt_test']['frase'], ascii=True, file=stdout):
-        traduccion = model.predict(sentence, params)
-        pred.append(traduccion)
-    pred = pd.DataFrame(pred)
-    pred.columns = ['pred']
-    total_utts = hash_test.shape[0]
-    hash_test = datasets['hash_test'].reset_index()
-    positives = 0
-    for i in range(total_utts):
-        if pred.iloc[i][0] == hash_test.iloc[i]['tag']:
-            positives += 1
-    print('Accuracy: {:.4f}'.format(positives / total_utts))
+    datasets = data.prepare(load_tokenizer=True)
+    model.load(params['def_nn_name'], params['def_tokenizer_name'], params)
+    model.test(datasets, params)
+
 else:
-    model.load(params['def_nn_name'], params)
-    if arguments['SENTENCE'] is None:
+    model.load(params['def_nn_name'], params['def_tokenizer_name'], params)
+    if 'SENTENCE' not in arguments:
         sentence = input('Enter command: ')
     else:
         sentence = arguments['SENTENCE']

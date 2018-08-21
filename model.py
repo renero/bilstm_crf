@@ -1,5 +1,6 @@
-import vocabulary
+import tagger
 import numpy as np
+import pandas as pd
 
 from keras.preprocessing.sequence import pad_sequences
 from keras.models import load_model
@@ -7,11 +8,14 @@ from keras.models import Sequential
 from keras.layers import Dense, Embedding, LSTM
 from keras.layers import Bidirectional, TimeDistributed
 from keras_contrib.layers import CRF
+from sys import stdout
+from tqdm import tqdm
 
 
 class Model:
 
     model = Sequential()
+    tokenizer = None
     _embedded_size = 128
     _bidirectional_size = 128
     _dense_size = 128
@@ -47,24 +51,66 @@ class Model:
         return self
 
     def train(self, train, target, params):
-        print('Train...', flush=True)
+        print('Training network', flush=True)
         self.model.fit(
             train,
             target,
             batch_size=params['batch_size'],
             validation_split=params['validation_split'],
             epochs=params['num_epochs'])
-        print('done.', flush=True)
 
-    def save(self, filename=None, params=None):
+    def test(self, datasets, params):
+        print('Evaluating test set performance...', flush=True)
+        hash_test = datasets['hash_test'].reset_index()
+        pred = []
+        for sentence in tqdm(
+                datasets['utt_test']['frase'], ascii=True, file=stdout):
+            traduccion = self.predict(sentence, params)
+            pred.append(traduccion)
+        pred = pd.DataFrame(pred)
+        pred.columns = ['pred']
+        total_utts = hash_test.shape[0]
+        hash_test = datasets['hash_test'].reset_index()
+        positives = 0
+        for i in range(total_utts):
+            if pred.iloc[i][0] == hash_test.iloc[i]['tag']:
+                positives += 1
+        print('Accuracy: {:.4f}'.format(positives / total_utts))
+
+    def predict(self, sentence, params):
+        # Tratamieto
+        largo_real_frase = len(sentence.split())
+        tratada = tagger.cleanup(sentence)
+        test = pad_sequences(
+            self.tokenizer.texts_to_sequences(np.array([tratada])),
+            maxlen=params['largo_max'],
+            padding='post')
+
+        # Predicción
+        predict = self.model.predict(test)
+        traduccion = []
+        for i in range(0, largo_real_frase):  # TODO
+            if np.argmax(predict[0][i]) == 0:
+                traduccion += ['x']
+            if np.argmax(predict[0][i]) == 1:
+                traduccion += ['ot']
+            if np.argmax(predict[0][i]) == 2:
+                traduccion += ['oc']
+            if np.argmax(predict[0][i]) == 3:
+                traduccion += ['oh']
+            if np.argmax(predict[0][i]) == 4:
+                traduccion += ['or']
+            if np.argmax(predict[0][i]) == 5:
+                traduccion += ['os']
+
+        # Escritura en fichero:
+        traduccion = " ".join(str(x) for x in traduccion)
+        return traduccion
+
+    def save(self, nn_filename):
         """Saves the network to a file"""
-        if filename is None:
-            if params is not None:
-                self.model.save(params['default_nn_name'])
-            else:
-                self.model.save('./output/nn_entities.h5')
-        else:
-            self.model.save(filename)
+        print('Saving trained network.')
+        self.model.save(nn_filename)
 
     def create_custom_objects(self):
         instanceHolder = {"instance": None}
@@ -89,42 +135,15 @@ class Model:
             "accuracy": accuracy
         }
 
-    def load(self, filename, load_crf):
+    def load(self, nn_filename, tokenizer_name, params):
+        """Loads a presaved H5 network and the tokenizer used to encode
+        the words"""
+        load_crf = params['CRF']
         if load_crf is True:
             self.model = load_model(
-                filename,
+                nn_filename,
                 custom_objects=self.create_custom_objects(),
                 compile=True)
         else:
-            self.model = load_model(filename, compile=True)
-
-    def predict(self, sentence, params):
-        # Tratamieto
-        largo_real_frase = len(sentence.split())
-        tratada = vocabulary.cleanup(sentence)
-        tokenizer = vocabulary.read(params['def_tokenizer_name'])
-        test = pad_sequences(
-            tokenizer.texts_to_sequences(np.array([tratada])),
-            maxlen=params['largo_max'],
-            padding='post')
-
-        # Predicción
-        predict = self.model.predict(test)
-        traduccion = []
-        for i in range(0, largo_real_frase):  # TODO
-            if np.argmax(predict[0][i]) == 0:
-                traduccion += ['x']
-            if np.argmax(predict[0][i]) == 1:
-                traduccion += ['ot']
-            if np.argmax(predict[0][i]) == 2:
-                traduccion += ['oc']
-            if np.argmax(predict[0][i]) == 3:
-                traduccion += ['oh']
-            if np.argmax(predict[0][i]) == 4:
-                traduccion += ['or']
-            if np.argmax(predict[0][i]) == 5:
-                traduccion += ['os']
-
-        # Escritura en fichero:
-        traduccion = " ".join(str(x) for x in traduccion)
-        return traduccion
+            self.model = load_model(nn_filename, compile=True)
+        self.tokenizer = tagger.read(tokenizer_name)

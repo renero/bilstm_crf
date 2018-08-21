@@ -1,5 +1,6 @@
 import pickle
 
+from keras.preprocessing.text import Tokenizer
 from re import sub, compile
 from unidecode import unidecode
 
@@ -20,15 +21,25 @@ def cleanup(text_string):
     return text_string.strip().lower()
 
 
-def save(tokenizer, params):
-    print('Loading tokenizer object used to train the net...')
-    with open(params['def_tokenizer_name'], 'wb') as handle:
+def init(dataset, unknown_tag):
+    print('Building tokenizer object.')
+    tokenizer = Tokenizer(
+        lower=True,
+        filters='!"#$%&()*+,-./:;<=>?@[\\]^_`{|}~\t\n',
+        oov_token=unknown_tag)
+    tokenizer.fit_on_texts(dataset)
+    return tokenizer
+
+
+def save(tokenizer, tokenizer_name):
+    print('Saving tokenizer object.')
+    with open(tokenizer_name, 'wb') as handle:
         pickle.dump(tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
 # Inicialización del universo de palabras
 def read(tokenizer_name):
-    print('Loading tokenizer object used to train the net...')
+    print('Loading tokenizer object.')
     with open(tokenizer_name, 'rb') as handle:
         tokenizer = pickle.load(handle)
     return tokenizer
