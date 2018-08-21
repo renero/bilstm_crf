@@ -27,6 +27,7 @@ class Data:
         with open(filename, 'r') as ymlfile:
             self.params = yaml.load(ymlfile)
         np.random.seed(1337)
+        self.params['num_tags'] = len(self.params['learn_tags'])
 
     def encode_utterances(self, dataset_name, datasets):
         """Simplified, Keras-way, creation of vocabulary, saving it

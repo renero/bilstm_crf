@@ -1,4 +1,4 @@
-working_path: '/Users/renero/Code/SA_PoC/model/model_evaluation/bilstm_crf_actions'
+working_path: '/Users/renero/Code/SA_PoC/model/model_evaluation/bilstm_crf'
 input_filename: 'resultado_cruce.csv'
 
 # Tags to be used by this network
@@ -25,9 +25,9 @@ amr:
 # Specify which one is the wildcard tag not carrying encoding.
 void_tag: 'x'
 
-output_vocabulary: 'diccionario.txt'
+output_vocabulary: 'diccionario_entities.txt'
 def_nn_name: './output/dnn_entities.h5'
-def_tokenizer_name: './output/tokenizer.pickle'
+def_tokenizer_name: './output/tokenizer_entities.pickle'
 
 largo_max: 40
 test_size: 0.05

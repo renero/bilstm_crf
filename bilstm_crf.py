@@ -2,21 +2,24 @@
 Bi-LSTM with CRF
 
 Usage:
-    bilstm_crf.py (train | test | predict) PARAMETERS_FILENAME
-    bilstm_crf.py [-h | --help]
+    bilstm_crf (train | test | predict) PARAMETERS_FILENAME
+    bilstm_crf [-h | --help]
 
 Options:
   -h, --help    Show this message
 """
 
 import tagger
-
+import sys
 from data import Data
 from docopt import docopt
 from model import Model
 
 if __name__ == '__main__':
-    arguments = docopt(__doc__, version='FIXME')
+    arguments = docopt(__doc__, version='0.1')
+if arguments['PARAMETERS_FILENAME'] is None:
+    print(__doc__)
+    sys.exit(1)
 
 data = Data(arguments['PARAMETERS_FILENAME'])
 params = data.params

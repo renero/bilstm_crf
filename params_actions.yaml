@@ -1,37 +1,46 @@
-working_path: '/Users/renero/Code/SA_PoC/model/model_evaluation/bilstm_crf_actions'
+working_path: '/Users/renero/Code/SA_PoC/model/model_evaluation/bilstm_crf'
 input_filename: 'resultado_cruce.csv'
 
 # Tags to be used by this network
-tag_header: 'tag_objeto'
-amr_header: 'amr_objeto'
+tag_header: 'tag_accion'
+amr_header: 'amr_accion'
 
 # What tags do I want to use for prediction with this network?
 learn_tags:
+  - 'aa'
+  - 'ac'
+  - 'ad'
+  - 'ae'
+  - 'ai'
+  - 'an'
+  - 'ar'
+  - 'asi'
+  - 'asnc'
+  - 'asr'
   - 'x'
-  - 'ot'
-  - 'oc'
-  - 'oh'
-  - 'or'
-  - 'os'
 
 amr:
+  'aa': 'A-AMPL'
+  'ac': 'A-CADC'
+  'ad': 'A-ERR_DAT'
+  'ae': 'A-ERR_FUNC'
+  'ai': 'A-INFO'
+  'an': 'A-NEWUSR'
+  'ar': 'A-ROBO'
+  'asi': 'A-INC_BNF'
+  'asnc': 'A-CANC'
+  'asr': 'A-RENOV'
   'x': 'O'
-  'ot': 'O-TARJETA'
-  'oc': 'O-COBERTURA'
-  'oh': 'O-CENTROS'
-  'or': 'O-REEMBOLSO'
-  'os': 'O-SEGURO'
 
 # Specify which one is the wildcard tag not carrying encoding.
 void_tag: 'x'
 
-output_vocabulary: 'diccionario.txt'
-def_nn_name: './output/dnn_entities.h5'
-def_tokenizer_name: './output/tokenizer.pickle'
+output_vocabulary: 'diccionario_actions.txt'
+def_nn_name: './output/dnn_actions.h5'
+def_tokenizer_name: './output/tokenizer_actions.pickle'
 
 largo_max: 40
 test_size: 0.05
-num_tags: 6
 CRF: False
 
 _PAD: '_PAD'
