@@ -43,6 +43,7 @@ class Model:
             metric = 'accuracy'
         self.model.summary()
         self.model.compile(loss=loss, optimizer='adam', metrics=[metric])
+        return self
 
     def train(self, train, target, params):
         print('Train...', flush=True)
@@ -92,9 +93,11 @@ class Model:
     def load(self, filename, params):
         if params['CRF'] is True:
             self.model = load_model(
-                filename, custom_objects=self.create_custom_objects())
+                filename,
+                custom_objects=self.create_custom_objects(),
+                compile=True)
         else:
-            self.model = load_model(filename)
+            self.model = load_model(filename, compile=True)
 
     def predict(self, sentence, params):
         # Tratamieto

@@ -1,10 +1,13 @@
 from numpy import array
+from pprint import pprint
 from keras.preprocessing.text import one_hot, Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import Flatten
 from keras.layers.embeddings import Embedding  # define documents
+from keras.utils import to_categorical
+
 
 docs = [
     'Well done!', 'I have 3 pastels ??'
@@ -16,10 +19,10 @@ labels = array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
 # integer encode the documents
 vocab_size = 50
 encoded_docs = [one_hot(d, vocab_size) for d in docs]
-print(encoded_docs)
-
+pprint(encoded_docs)
+pprint(to_categorical(encoded_docs[8], num_classes=vocab_size))
 # pad documents to a max length of 4 words
-max_length = 4
+max_length = 6
 padded_docs = pad_sequences(encoded_docs, maxlen=max_length, padding='post')
 print(padded_docs)
 
@@ -58,3 +61,17 @@ t.index_word.values()
 r = t.texts_to_sequences(array(['I made a good work', 'I did effort']))
 r
 t.index_word[6]
+
+# hola
+# hola
+# hola
+# hola
+# hola
+# hola
+
+# Sample of FAST encoding of tags
+sents = ['x ot oh x x x x oc', 'x x x x oh oc x']
+tag_size = 6
+encoded_sent = [one_hot(d, tag_size) for d in sents]
+pprint(encoded_sent)
+[pprint(to_categorical(enc, num_classes=6)) for enc in encoded_sent]

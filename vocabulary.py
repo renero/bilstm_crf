@@ -37,14 +37,14 @@ def expand_amr(sentence):  # TODO
     amr = ''
     # Objetos:
     if sentence.find("ot") != -1:
-        amr = amr + "<o:tarjeta> "
+        amr = amr + "<o:tarjeta>"
     if sentence.find("oc") != -1:
-        amr = amr + "<o:coberturas> "
+        amr = amr + "<o:coberturas>"
     if sentence.find("oh") != -1:
-        amr = amr + "<o:centros> "
+        amr = amr + "<o:centros>"
     if sentence.find("os") != -1:
-        amr = amr + "<o:seguro> "
+        amr = amr + "<o:seguro>"
     if sentence.find("or") != -1:
-        amr = amr + "<o:reembolso> "
+        amr = amr + "<o:reembolso>"
 
     return amr

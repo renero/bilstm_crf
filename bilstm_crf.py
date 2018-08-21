@@ -2,13 +2,13 @@
 bilstm_crf
 
 Usage:
-    bilstm_crf train
-    bilstm_crf test
-    bilstm_crf -h | --help
+    bilstm_crf
+    bilstm_crf [train]
+    bilstm_crf [test]
+    bilstm_crf [-h | --help]
 
 Options:
   -h, --help    Show this message
-
 """
 
 import data
@@ -16,25 +16,30 @@ import pandas as pd
 import sys
 import vocabulary
 
-from docopt import docopt
+from docopt import docopt, DocoptExit
 from model import Model
 from tqdm import tqdm
 from sys import stdout
 
 if __name__ == '__main__':
-    arguments = docopt(__doc__, version='FIXME')
+    try:
+        arguments = docopt(__doc__, version='FIXME')
+    except DocoptExit:
+        arguments = dict()
+        arguments['train'] = False
+        arguments['test'] = False
+        arguments['predict'] = True
 
 params = data.init()
-model = Model()
-datasets = data.prepare(params)
+if arguments['predict'] is not True:
+    datasets = data.prepare(params)
+model = Model().init(params)
 
 if arguments['train'] is True:
-    model.init(params)
     model.train(datasets['train'], datasets['target'], params)
     model.save('output/nn_entities.h5')
     sys.exit(0)
-else:
-    model.init(params)
+elif arguments['test'] is True:
     model.load('output/nn_entities.h5', params)
     print('Evaluating test set performance...', flush=True)
 
@@ -56,6 +61,11 @@ else:
         if pred.iloc[i][0] == hash_test.iloc[i]['tag']:
             positives += 1
     print('Accuracy: {:.4f}'.format(positives / total_utts))
+else:
+    model.load('output/nn_entities.h5', params)
+    sentence = input('Enter command:')
+    tagging = model.predict(sentence, params)
+    print('sentence: {}\ntagging.: {}'.format(sentence, tagging), flush=True)
 
 # --
 
