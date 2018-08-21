@@ -2,9 +2,9 @@
 bilstm_crf
 
 Usage:
-    bilstm_crf
-    bilstm_crf [train]
-    bilstm_crf [test]
+    bilstm_crf train
+    bilstm_crf test
+    bilstm_crf predict SENTENCE
     bilstm_crf [-h | --help]
 
 Options:
@@ -13,8 +13,6 @@ Options:
 
 import data
 import pandas as pd
-import sys
-import vocabulary
 
 from docopt import docopt, DocoptExit
 from model import Model
@@ -25,24 +23,23 @@ if __name__ == '__main__':
     try:
         arguments = docopt(__doc__, version='FIXME')
     except DocoptExit:
+        print('No valid arguments to docopt(), taking default behavior.')
         arguments = dict()
         arguments['train'] = False
         arguments['test'] = False
         arguments['predict'] = True
 
 params = data.init()
-if arguments['predict'] is not True:
-    datasets = data.prepare(params)
 model = Model().init(params)
 
 if arguments['train'] is True:
+    datasets = data.prepare(params)
     model.train(datasets['train'], datasets['target'], params)
-    model.save('output/nn_entities.h5')
-    sys.exit(0)
+    model.save(params['def_nn_name'])
 elif arguments['test'] is True:
-    model.load('output/nn_entities.h5', params)
+    datasets = data.prepare(params)
+    model.load(params['def_nn_name'], params['CRF'])
     print('Evaluating test set performance...', flush=True)
-
     frases_test = datasets['utt_test'].reset_index()
     hash_test = datasets['hash_test'].reset_index()
     amr_test = datasets['amr_test'].reset_index()
@@ -51,7 +48,6 @@ elif arguments['test'] is True:
             datasets['utt_test']['frase'], ascii=True, file=stdout):
         traduccion = model.predict(sentence, params)
         pred.append(traduccion)
-
     pred = pd.DataFrame(pred)
     pred.columns = ['pred']
     total_utts = hash_test.shape[0]
@@ -62,32 +58,7 @@ elif arguments['test'] is True:
             positives += 1
     print('Accuracy: {:.4f}'.format(positives / total_utts))
 else:
-    model.load('output/nn_entities.h5', params)
-    sentence = input('Enter command:')
+    model.load(params['def_nn_name'], params)
+    sentence = input('Enter command: ')
     tagging = model.predict(sentence, params)
     print('sentence: {}\ntagging.: {}'.format(sentence, tagging), flush=True)
-
-# --
-
-amr_pred = pred['pred'].apply(lambda x: vocabulary.expand_amr(x))
-amr_pred = pd.DataFrame(amr_pred)
-amr_pred.columns = ['amr_pred']
-
-eval = pd.concat(
-    [
-        frases_test[['frase']], hash_test[['tag']], amr_test[['amr']], pred,
-        amr_pred
-    ],
-    axis=1)
-eval.to_csv("./output/eval.csv", encoding='utf8')
-
-eval = pd.read_csv('./output/eval.csv', sep=',', encoding="utf8")  # TODO
-print('Nr of test utterances: ', len(frases_test))
-aciertos_tag = eval[eval['tag'] == eval['pred']]
-print('   Correct classif. TAG: ', len(aciertos_tag), ' - ',
-      round(len(aciertos_tag) / len(frases_test) * 100, 2), '%')
-
-aciertos_amr = eval[((eval['amr'] == eval['amr_pred']) |
-                     (eval['amr'].isnull() & eval['amr_pred'].isnull()))]
-print('   Correct classif. AMR: ', len(aciertos_amr), ' - ',
-      round(len(aciertos_amr) / len(frases_test) * 100, 2), '%')

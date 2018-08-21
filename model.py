@@ -15,6 +15,7 @@ class Model:
     _embedded_size = 128
     _bidirectional_size = 128
     _dense_size = 128
+    _optimizer = 'adam'
 
     def __init__(self):
         pass
@@ -25,7 +26,6 @@ class Model:
                 params['vocabulary_size'],
                 self._embedded_size,
                 input_length=params['largo_max']))
-        # self.model.add(LSTM(64, return_sequences=True))
         self.model.add(
             Bidirectional(
                 LSTM(self._bidirectional_size, return_sequences=True)))
@@ -42,7 +42,8 @@ class Model:
             loss = 'categorical_crossentropy'
             metric = 'accuracy'
         self.model.summary()
-        self.model.compile(loss=loss, optimizer='adam', metrics=[metric])
+        self.model.compile(
+            loss=loss, optimizer=self._optimizer, metrics=[metric])
         return self
 
     def train(self, train, target, params):
@@ -61,11 +62,9 @@ class Model:
             if params is not None:
                 self.model.save(params['default_nn_name'])
             else:
-                self.model.save('./output/BI_LSTM_entities.h5')
+                self.model.save('./output/nn_entities.h5')
         else:
             self.model.save(filename)
-            # save_load_utils.save_all_weights(
-            #     self.model, filename, include_optimizer=False)
 
     def create_custom_objects(self):
         instanceHolder = {"instance": None}
@@ -90,8 +89,8 @@ class Model:
             "accuracy": accuracy
         }
 
-    def load(self, filename, params):
-        if params['CRF'] is True:
+    def load(self, filename, load_crf):
+        if load_crf is True:
             self.model = load_model(
                 filename,
                 custom_objects=self.create_custom_objects(),
@@ -103,7 +102,7 @@ class Model:
         # Tratamieto
         largo_real_frase = len(sentence.split())
         tratada = vocabulary.cleanup(sentence)
-        tokenizer = vocabulary.read(params)
+        tokenizer = vocabulary.read(params['def_tokenizer_name'])
         test = pad_sequences(
             tokenizer.texts_to_sequences(np.array([tratada])),
             maxlen=params['largo_max'],

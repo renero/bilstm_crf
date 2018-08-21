@@ -21,13 +21,15 @@ def cleanup(text_string):
 
 
 def save(tokenizer, params):
-    with open('tokenizer.pickle', 'wb') as handle:
+    print('Loading tokenizer object used to train the net...')
+    with open(params['def_tokenizer_name'], 'wb') as handle:
         pickle.dump(tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
 # Inicialización del universo de palabras
-def read(params):
-    with open('tokenizer.pickle', 'rb') as handle:
+def read(tokenizer_name):
+    print('Loading tokenizer object used to train the net...')
+    with open(tokenizer_name, 'rb') as handle:
         tokenizer = pickle.load(handle)
     return tokenizer
 
