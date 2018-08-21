@@ -45,19 +45,12 @@ def read(tokenizer_name):
     return tokenizer
 
 
-# Construcción AMR objetos
-def expand_amr(sentence):  # TODO
+def expand_amr(sentence, params):
     amr = ''
-    # Objetos:
-    if sentence.find("ot") != -1:
-        amr = amr + "<o:tarjeta>"
-    if sentence.find("oc") != -1:
-        amr = amr + "<o:coberturas>"
-    if sentence.find("oh") != -1:
-        amr = amr + "<o:centros>"
-    if sentence.find("os") != -1:
-        amr = amr + "<o:seguro>"
-    if sentence.find("or") != -1:
-        amr = amr + "<o:reembolso>"
-
-    return amr
+    tags = sentence.strip().split()
+    valid_tags = params['learn_tags'].copy()
+    del valid_tags[params['learn_tags'].index(params['void_tag'])]
+    for valid_tag in valid_tags:
+        if any(valid_tag in tag for tag in tags):
+            amr += '{} '.format(params['amr'][valid_tag])
+    return amr.strip()

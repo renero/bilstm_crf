@@ -79,36 +79,21 @@ class Model:
 
     def predict(self, sentence, params):
         # Tratamieto
-        largo_real_frase = len(sentence.split())
+        sentence_len = len(sentence.strip().split())
         tratada = tagger.cleanup(sentence)
         test = pad_sequences(
             self.tokenizer.texts_to_sequences(np.array([tratada])),
             maxlen=params['largo_max'],
             padding='post')
-
-        # Predicción
         predict = self.model.predict(test)
         traduccion = []
-        for i in range(0, largo_real_frase):  # TODO
-            if np.argmax(predict[0][i]) == 0:
-                traduccion += ['x']
-            if np.argmax(predict[0][i]) == 1:
-                traduccion += ['ot']
-            if np.argmax(predict[0][i]) == 2:
-                traduccion += ['oc']
-            if np.argmax(predict[0][i]) == 3:
-                traduccion += ['oh']
-            if np.argmax(predict[0][i]) == 4:
-                traduccion += ['or']
-            if np.argmax(predict[0][i]) == 5:
-                traduccion += ['os']
-
-        # Escritura en fichero:
+        for i in range(0, sentence_len):
+            prediction = np.argmax(predict[0][i])
+            traduccion += [params['learn_tags'][prediction]]
         traduccion = " ".join(str(x) for x in traduccion)
         return traduccion
 
     def save(self, nn_filename):
-        """Saves the network to a file"""
         print('Saving trained network.')
         self.model.save(nn_filename)
 

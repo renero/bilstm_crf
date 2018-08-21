@@ -51,27 +51,18 @@ class Data:
         from the input dataset."""
         data[dataset_name]['tag'] = data[dataset_name]['tag'].apply(
             lambda x: tagger.cleanup(x))
-        target_lista = []
-        for line in tqdm(data[dataset_name]['tag'], ascii=True, file=stdout):
-            fila_lista = []
-            for space_separated_fragment in line.strip().split():  # TODO
-                if space_separated_fragment.strip().lower() == 'x':
-                    fila_lista += [[1, 0, 0, 0, 0, 0]]
-                if space_separated_fragment.strip().lower() == 'ot':
-                    fila_lista += [[0, 1, 0, 0, 0, 0]]
-                if space_separated_fragment.strip().lower() == 'oc':
-                    fila_lista += [[0, 0, 1, 0, 0, 0]]
-                if space_separated_fragment.strip().lower() == 'oh':
-                    fila_lista += [[0, 0, 0, 1, 0, 0]]
-                if space_separated_fragment.strip().lower() == 'or':
-                    fila_lista += [[0, 0, 0, 0, 1, 0]]
-                if space_separated_fragment.strip().lower() == 'os':
-                    fila_lista += [[0, 0, 0, 0, 0, 1]]
-
-            while len(fila_lista) < self.params['largo_max']:
-                fila_lista.append([1, 0, 0, 0, 0, 0])
-            target_lista += [fila_lista]
-        return np.array(target_lista)
+        target = []
+        for i, line in enumerate(data[dataset_name]['tag']):
+            tags_array = line.strip().split()
+            target_line = np.zeros(
+                [self.params['largo_max'],
+                 len(self.params['learn_tags'])],
+                dtype=np.int8)
+            for j, tag in enumerate(tags_array):
+                one_pos = self.params['learn_tags'].index(tag)
+                target_line[j][one_pos] = 1
+            target.append(target_line)
+        return np.array(target)
 
     def encode(self, datasets):
         """Simplified Keras version of the encoder"""
@@ -92,7 +83,9 @@ class Data:
             encoding='utf-8')
 
         # Seleccionamos las columnas
-        datos = datos[['frase', 'tag_objeto', 'amr_objeto']]
+        tag_header = self.params['tag_header']
+        amr_header = self.params['amr_header']
+        datos = datos[['frase', tag_header, amr_header]]
         datos.columns = ['frase', 'tag', 'amr']
 
         # Aplicamos correcciones a las frases:

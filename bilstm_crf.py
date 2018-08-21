@@ -10,6 +10,7 @@ Usage:
 Options:
   -h, --help    Show this message
 """
+import tagger
 
 from data import Data
 from docopt import docopt, DocoptExit
@@ -38,7 +39,6 @@ elif arguments['test'] is True:
     datasets = data.prepare(load_tokenizer=True)
     model.load(params['def_nn_name'], params['def_tokenizer_name'], params)
     model.test(datasets, params)
-
 else:
     model.load(params['def_nn_name'], params['def_tokenizer_name'], params)
     if 'SENTENCE' not in arguments:
@@ -46,4 +46,7 @@ else:
     else:
         sentence = arguments['SENTENCE']
     tagging = model.predict(sentence, params)
-    print('sentence: {}\ntagging.: {}'.format(sentence, tagging), flush=True)
+    print(
+        'sentence: {}\ntagging.: {}\namr.....: {}'.format(
+            sentence, tagging, tagger.expand_amr(tagging, params)),
+        flush=True)

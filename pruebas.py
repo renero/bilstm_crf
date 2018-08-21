@@ -75,3 +75,74 @@ tag_size = 6
 encoded_sent = [one_hot(d, tag_size) for d in sents]
 pprint(encoded_sent)
 [pprint(to_categorical(enc, num_classes=6)) for enc in encoded_sent]
+
+# test on encoding with functional
+# test on encoding with functional
+# test on encoding with functional
+# test on encoding with functional
+# test on encoding with functional
+# test on encoding with functional
+# test on encoding with functional
+# test on encoding with functional
+# test on encoding with functional
+# test on encoding with functional
+# test on encoding with functional
+# test on encoding with functional
+# test on encoding with functional
+# test on encoding with functional
+# test on encoding with functional
+# test on encoding with functional
+# test on encoding with functional
+
+# %%
+import numpy as np
+params = dict()
+params['learn_tags'] = ['x', 'ot', 'oc', 'oh', 'or', 'os']
+params['num_tags'] = 6
+params['void_tag'] = 'x'
+line = 'x x oc oc x'
+tags_array = line.strip().split()
+
+target = np.zeros([len(tags_array), len(params['learn_tags'])], dtype=np.int8)
+for j, tag in enumerate(tags_array):
+    one_pos = params['learn_tags'].index(tag)
+    target[j][one_pos] = 1
+target
+
+# %%
+fila_lista = []
+for space_separated_fragment in line.strip().split():  # TODO
+    if space_separated_fragment.strip().lower() == 'x':
+        fila_lista += [[1, 0, 0, 0, 0, 0]]
+    if space_separated_fragment.strip().lower() == 'ot':
+        fila_lista += [[0, 1, 0, 0, 0, 0]]
+    if space_separated_fragment.strip().lower() == 'oc':
+        fila_lista += [[0, 0, 1, 0, 0, 0]]
+    if space_separated_fragment.strip().lower() == 'oh':
+        fila_lista += [[0, 0, 0, 1, 0, 0]]
+    if space_separated_fragment.strip().lower() == 'or':
+        fila_lista += [[0, 0, 0, 0, 1, 0]]
+    if space_separated_fragment.strip().lower() == 'os':
+        fila_lista += [[0, 0, 0, 0, 0, 1]]
+fila_lista
+
+# build the amr
+# build the amr
+# build the amr
+# build the amr
+# build the amr
+# build the amr
+
+
+# %%
+line = 'x x oc ot x'
+params['amr'] = {'x': 'O', 'ot': 'O-TARJETA', 'oc': 'O-COBERTURA',
+                 'oh': 'O-CENTROS', 'or': 'O-REEMBOLSO', 'os': 'O-SEGURO'}
+amr = ''
+tags = line.strip().split()
+valid_tags = params['learn_tags'].copy()
+del valid_tags[params['learn_tags'].index(params['void_tag'])]
+for valid_tag in valid_tags:
+    if any(valid_tag in tag for tag in tags):
+        amr += '{} '.format(params['amr'][valid_tag])
+print(amr.strip())

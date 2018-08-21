@@ -1,5 +1,30 @@
 working_path: '/Users/renero/Code/BOTs/BOT_PoC/model/model_evaluation/01_Entrenamiento/01_BILSTM_objeto'
 input_filename: 'resultado_cruce.csv'
+
+# Tags to be used by this network
+tag_header: 'tag_objeto'
+amr_header: 'amr_objeto'
+
+# What tags do I want to use for prediction with this network?
+learn_tags:
+  - 'x'
+  - 'ot'
+  - 'oc'
+  - 'oh'
+  - 'or'
+  - 'os'
+
+amr:
+  'x': 'O'
+  'ot': 'O-TARJETA'
+  'oc': 'O-COBERTURA'
+  'oh': 'O-CENTROS'
+  'or': 'O-REEMBOLSO'
+  'os': 'O-SEGURO'
+
+# Specify which one is the wildcard tag not carrying encoding.
+void_tag: 'x'
+
 output_vocabulary: 'diccionario.txt'
 def_nn_name: './output/dnn_entities.h5'
 def_tokenizer_name: './output/tokenizer.pickle'
