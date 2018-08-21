@@ -1,4 +1,4 @@
-working_path: '/Users/renero/Code/BOTs/BOT_PoC/model/model_evaluation/01_Entrenamiento/01_BILSTM_objeto'
+working_path: '/Users/renero/Code/SA_PoC/model/model_evaluation/bilstm_crf_actions'
 input_filename: 'resultado_cruce.csv'
 
 # Tags to be used by this network

@@ -1,0 +1,52 @@
+working_path: '/Users/renero/Code/SA_PoC/model/model_evaluation/bilstm_crf_actions'
+input_filename: 'resultado_cruce.csv'
+
+# Tags to be used by this network
+tag_header: 'tag_objeto'
+amr_header: 'amr_objeto'
+
+# What tags do I want to use for prediction with this network?
+learn_tags:
+  - 'x'
+  - 'ot'
+  - 'oc'
+  - 'oh'
+  - 'or'
+  - 'os'
+
+amr:
+  'x': 'O'
+  'ot': 'O-TARJETA'
+  'oc': 'O-COBERTURA'
+  'oh': 'O-CENTROS'
+  'or': 'O-REEMBOLSO'
+  'os': 'O-SEGURO'
+
+# Specify which one is the wildcard tag not carrying encoding.
+void_tag: 'x'
+
+output_vocabulary: 'diccionario.txt'
+def_nn_name: './output/dnn_entities.h5'
+def_tokenizer_name: './output/tokenizer.pickle'
+
+largo_max: 40
+test_size: 0.05
+num_tags: 6
+CRF: False
+
+_PAD: '_PAD'
+_GO: '_GO'
+_EOS: '_EOS'
+_UNK: '_UNK'
+_START_VOCAB: [_PAD, _GO, _EOS, _UNK]
+
+PAD_ID: 0
+GO_ID: 1
+EOS_ID: 2
+UNK_ID: 3
+
+max_vocabulary_size: 0
+vocabulary_size: 4000
+batch_size: 128
+validation_split: 0.1
+num_epochs: 1

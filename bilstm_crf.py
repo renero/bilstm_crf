@@ -1,32 +1,24 @@
 """
-bilstm_crf
+Bi-LSTM with CRF
 
 Usage:
-    bilstm_crf train
-    bilstm_crf test
-    bilstm_crf predict SENTENCE
-    bilstm_crf [-h | --help]
+    bilstm_crf.py (train | test | predict) PARAMETERS_FILENAME
+    bilstm_crf.py [-h | --help]
 
 Options:
   -h, --help    Show this message
 """
+
 import tagger
 
 from data import Data
-from docopt import docopt, DocoptExit
+from docopt import docopt
 from model import Model
 
 if __name__ == '__main__':
-    try:
-        arguments = docopt(__doc__, version='FIXME')
-    except DocoptExit:
-        print('No valid arguments to docopt(), taking default behavior.')
-        arguments = dict()
-        arguments['train'] = False
-        arguments['test'] = False
-        arguments['predict'] = True
+    arguments = docopt(__doc__, version='FIXME')
 
-data = Data()
+data = Data(arguments['PARAMETERS_FILENAME'])
 params = data.params
 model = Model().init(params)
 

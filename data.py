@@ -11,8 +11,6 @@ import tagger
 from keras.preprocessing.sequence import pad_sequences
 from os.path import join
 from sklearn.model_selection import train_test_split
-from sys import stdout
-from tqdm import tqdm
 
 
 class Data:
@@ -20,14 +18,15 @@ class Data:
     params = dict()
     tokenizer = None
 
-    def __init__(self):
-        self.init()
+    def __init__(self, parameters_filename=None):
+        self.init(parameters_filename)
 
-    def init(self):
-        with open("params.yaml", 'r') as ymlfile:
+    def init(self, params_fname=None):
+        filename = "params.yaml" if params_fname is None else params_fname
+        print('Loading parameters from: {}'.format(filename))
+        with open(filename, 'r') as ymlfile:
             self.params = yaml.load(ymlfile)
         np.random.seed(1337)
-        # return self
 
     def encode_utterances(self, dataset_name, datasets):
         """Simplified, Keras-way, creation of vocabulary, saving it
