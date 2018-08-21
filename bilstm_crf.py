@@ -59,6 +59,9 @@ elif arguments['test'] is True:
     print('Accuracy: {:.4f}'.format(positives / total_utts))
 else:
     model.load(params['def_nn_name'], params)
-    sentence = input('Enter command: ')
+    if arguments['SENTENCE'] is None:
+        sentence = input('Enter command: ')
+    else:
+        sentence = arguments['SENTENCE']
     tagging = model.predict(sentence, params)
     print('sentence: {}\ntagging.: {}'.format(sentence, tagging), flush=True)
