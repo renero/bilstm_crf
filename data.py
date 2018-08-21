@@ -32,11 +32,6 @@ class Data:
     def encode_utterances(self, dataset_name, datasets):
         """Simplified, Keras-way, creation of vocabulary, saving it
         padding and encoding."""
-        # = Tokenizer(
-        #     lower=True,
-        #     filters='!"#$%&()*+,-./:;<=>?@[\\]^_`{|}~\t\n',
-        #     oov_token=self.params['_UNK'])
-        # self.tokenizer.fit_on_texts(datasets[dataset_name]['frase'])
         encoded_utts = self.tokenizer.texts_to_sequences(
             datasets[dataset_name]['frase'])
         padded_encodings = pad_sequences(
