@@ -6,9 +6,8 @@ import yaml
 import pprint
 import numpy as np
 import pandas as pd
-import tagger
+from tagger import cleanup
 
-from keras.preprocessing.sequence import pad_sequences
 from os.path import join
 from sklearn.model_selection import train_test_split
 
@@ -16,10 +15,10 @@ from sklearn.model_selection import train_test_split
 class Data:
 
     params = dict()
-    tokenizer = None
+    sets = dict()
 
-    def __init__(self, parameters_filename=None):
-        self.init(parameters_filename)
+    def __init__(self):
+        pass
 
     def init(self, params_fname=None):
         filename = "params.yaml" if params_fname is None else params_fname
@@ -27,47 +26,11 @@ class Data:
         with open(filename, 'r') as ymlfile:
             self.params = yaml.load(ymlfile)
         np.random.seed(1337)
+        self.params['learn_tags'] = list(self.params['amr'].keys())
         self.params['num_tags'] = len(self.params['learn_tags'])
-        return
+        return self.prepare()
 
-    def encode_utterances(self, dataset_name, datasets):
-        """Simplified, Keras-way, creation of vocabulary, saving it
-        padding and encoding."""
-        encoded_utts = self.tokenizer.texts_to_sequences(
-            datasets[dataset_name]['frase'])
-        padded_encodings = pad_sequences(
-            encoded_utts, maxlen=self.params['max_utt_len'], padding='post')
-        self.params['vocabulary_size'] = len(self.tokenizer.word_index) + 1
-        datasets['vocabulary'] = np.array(
-            list(self.tokenizer.index_word.values()))
-        return padded_encodings
-
-    def encode_prediction(self, dataset_name, data):
-        """Builds the responde in a typical supervised learning problem
-        from the input dataset."""
-        data[dataset_name]['tag'] = data[dataset_name]['tag'].apply(
-            lambda x: tagger.cleanup(x))
-        target = []
-        for i, line in enumerate(data[dataset_name]['tag']):
-            tags_array = line.strip().split()
-            target_line = np.zeros(
-                [self.params['max_utt_len'],
-                 len(self.params['learn_tags'])],
-                dtype=np.int8)
-            for j, tag in enumerate(tags_array):
-                one_pos = self.params['learn_tags'].index(tag)
-                target_line[j][one_pos] = 1
-            target.append(target_line)
-        return np.array(target)
-
-    def encode(self, datasets):
-        """Simplified Keras version of the encoder"""
-        print('Encoding training sets.', flush=True)
-        datasets['train'] = self.encode_utterances('utt_train', datasets)
-        datasets['target'] = self.encode_prediction('hash_train', datasets)
-        return datasets
-
-    def prepare(self, load_tokenizer=False):
+    def prepare(self):
         """Prepare the input datasets, and the vocabulary"""
         print('Reading input datasets', flush=True)
         datos = pd.read_csv(
@@ -85,8 +48,8 @@ class Data:
 
         # Aplicamos correcciones a las frases:
         print('Cleaning up and splitting datasets', flush=True)
-        datos['frase'] = datos['frase'].apply(lambda x: tagger.cleanup(x))
-        datos['tag'] = datos['tag'].apply(lambda x: tagger.cleanup(x))
+        datos['frase'] = datos['frase'].apply(lambda x: cleanup(x))
+        datos['tag'] = datos['tag'].apply(lambda x: cleanup(x))
         U_dev, U_tst, H_dev, H_tst, A_dev, A_tst = train_test_split(
             datos[['frase']],
             datos[['tag']],
@@ -95,29 +58,28 @@ class Data:
             random_state=50)
 
         U_dev['frase'] = U_dev['frase'].apply(
-            lambda x: x.replace('unk', self.params['_UNK']))
+            lambda x: x.replace('unk', self.params['UNK']))
         U_tst['frase'] = U_tst['frase'].apply(
-            lambda x: x.replace('unk', self.params['_UNK']))
+            lambda x: x.replace('unk', self.params['UNK']))
 
-        datasets = dict()
-        datasets['utt_train'] = U_dev
-        datasets['utt_test'] = U_tst
-        datasets['hash_train'] = H_dev
-        datasets['hash_test'] = H_tst
-        datasets['amr_train'] = A_dev
-        datasets['amr_test'] = A_tst
+        self.sets['utt_train'] = U_dev
+        self.sets['utt_test'] = U_tst
+        self.sets['hash_train'] = H_dev
+        self.sets['hash_test'] = H_tst
+        self.sets['amr_train'] = A_dev
+        self.sets['amr_test'] = A_tst
 
-        if load_tokenizer is False:
-            self.tokenizer = tagger.init(datasets['utt_train']['frase'],
-                                         self.params['_UNK'])
-        else:
-            self.tokenizer = tagger.read(self.params['def_tokenizer_name'])
-        datasets = self.encode(datasets)
-        return datasets
+        return self
+        # if load_tokenizer is False:
+        #     self.tokenizer = tagger.init(datasets['utt_train']['frase'],
+        #                                  self.params['UNK'])
+        # else:
+        #     self.tokenizer = tagger.read(self.params['def_tokenizer_name'])
+        # datasets = self.encode(datasets)
 
-    def save_tokenizer(self, tokenizer_filename):
-        tagger.save(self.tokenizer, tokenizer_filename)
-        return
+    # def save_tokenizer(self, tokenizer_filename):
+    #     tagger.save(self.tokenizer, tokenizer_filename)
+    #     return
 
     def info(self, datasets):
         len_total = len(datasets['utt_train']) + len(datasets['utt_test'])

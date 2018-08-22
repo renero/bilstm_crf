@@ -1,4 +1,4 @@
-import tagger
+from tagger import cleanup
 import numpy as np
 import pandas as pd
 
@@ -15,7 +15,6 @@ from tqdm import tqdm
 class Model:
 
     model = Sequential()
-    tokenizer = None
     _embedded_size = 128
     _bidirectional_size = 128
     _dense_size = 128
@@ -50,39 +49,43 @@ class Model:
             loss=loss, optimizer=self._optimizer, metrics=[metric])
         return self
 
-    def train(self, train, target, params):
+    def train(self, data):
         print('Training network', flush=True)
+        train = data.sets['train']
+        target = data.sets['target']
         self.model.fit(
             train,
             target,
-            batch_size=params['batch_size'],
-            validation_split=params['validation_split'],
-            epochs=params['num_epochs'])
+            batch_size=data.params['batch_size'],
+            validation_split=data.params['validation_split'],
+            epochs=data.params['num_epochs'])
 
-    def test(self, datasets, params):
+    def test(self, data, tagger):
         print('Evaluating test set performance...', flush=True)
-        hash_test = datasets['hash_test'].reset_index()
-        pred = []
+        hash_test = data.sets['hash_test'].reset_index()
+        predictions = []
         for sentence in tqdm(
-                datasets['utt_test']['frase'], ascii=True, file=stdout):
-            traduccion = self.predict(sentence, params)
-            pred.append(traduccion)
-        pred = pd.DataFrame(pred)
-        pred.columns = ['pred']
+                data.sets['utt_test']['frase'], ascii=True, file=stdout):
+            prediction = self.predict(sentence, data.params, tagger.tokenizer)
+            predictions.append(prediction)
+        predictions = pd.DataFrame(predictions)
+        predictions.columns = ['pred']
         total_utts = hash_test.shape[0]
-        hash_test = datasets['hash_test'].reset_index()
+        hash_test = data.sets['hash_test'].reset_index()
         positives = 0
         for i in range(total_utts):
-            if pred.iloc[i][0] == hash_test.iloc[i]['tag']:
+            if predictions.iloc[i][0] == hash_test.iloc[i]['tag']:
                 positives += 1
-        print('Accuracy: {:.4f}'.format(positives / total_utts))
+        acc = (positives / total_utts)
+        print('Accuracy: {:.4f}'.format(acc))
+        return acc
 
-    def predict(self, sentence, params):
+    def predict(self, sentence, params, tokenizer):
         # Tratamieto
         sentence_len = len(sentence.strip().split())
-        tratada = tagger.cleanup(sentence)
+        tratada = cleanup(sentence)
         test = pad_sequences(
-            self.tokenizer.texts_to_sequences(np.array([tratada])),
+            tokenizer.texts_to_sequences(np.array([tratada])),
             maxlen=params['max_utt_len'],
             padding='post')
         predict = self.model.predict(test)
@@ -120,7 +123,7 @@ class Model:
             "accuracy": accuracy
         }
 
-    def load(self, nn_filename, tokenizer_name, params):
+    def load(self, nn_filename, params):
         """Loads a presaved H5 network and the tokenizer used to encode
         the words"""
         load_crf = params['CRF']
@@ -131,4 +134,3 @@ class Model:
                 compile=True)
         else:
             self.model = load_model(nn_filename, compile=True)
-        self.tokenizer = tagger.read(tokenizer_name)

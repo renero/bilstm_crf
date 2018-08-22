@@ -5,15 +5,6 @@ input_filename: 'resultado_cruce.csv'
 tag_header: 'tag_objeto'
 amr_header: 'amr_objeto'
 
-# What tags do I want to use for prediction with this network?
-learn_tags:
-  - 'x'
-  - 'ot'
-  - 'oc'
-  - 'oh'
-  - 'or'
-  - 'os'
-
 amr:
   'x': 'O'
   'ot': 'O-TARJETA'
@@ -29,21 +20,13 @@ output_vocabulary: 'diccionario_entities.txt'
 def_nn_name: './output/dnn_entities.h5'
 def_tokenizer_name: './output/tokenizer_entities.pickle'
 
-max_utt_len: 40
+max_utt_len: 38
 test_size: 0.05
 num_tags: 6
 CRF: False
 
-_PAD: '_PAD'
-_GO: '_GO'
-_EOS: '_EOS'
-_UNK: '_UNK'
-_START_VOCAB: [_PAD, _GO, _EOS, _UNK]
-
-PAD_ID: 0
-GO_ID: 1
-EOS_ID: 2
-UNK_ID: 3
+UNK: '_UNK'
+UNK_ID: 0
 
 max_vocabulary_size: 0
 vocabulary_size: 4000
