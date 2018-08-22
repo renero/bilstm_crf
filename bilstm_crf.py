@@ -16,8 +16,7 @@ from data import Data
 from model import Model
 from tagger import Tagger
 
-
-sys.argv = ["bilstm_crf.py", "test", "params_actions.yaml"]
+# sys.argv = ["bilstm_crf.py", "test", "params_conditionings.yaml"]
 
 if __name__ == '__main__':
     arguments = docopt(__doc__, version='0.1')
@@ -39,8 +38,7 @@ elif arguments['test'] is True:
     model.load(data.params['def_nn_name'], data.params)
     model.test(data, tagger)
 else:
-    model.load(data.params['def_nn_name'],
-               data.params)
+    model.load(data.params['def_nn_name'], data.params)
     sentence = input('Enter command: ')
     tagging = model.predict(sentence, data.params)
     print(

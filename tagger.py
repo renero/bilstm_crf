@@ -50,7 +50,8 @@ class Tagger:
         for i, line in enumerate(data.sets[dataset_name]['tag']):
             tags_array = line.strip().split()
             target_line = np.zeros(
-                [data.params['max_utt_len'], len(data.params['learn_tags'])],
+                [data.params['max_utt_len'],
+                 len(data.params['learn_tags'])],
                 dtype=np.int8)
             for j, tag in enumerate(tags_array):
                 one_pos = data.params['learn_tags'].index(tag)

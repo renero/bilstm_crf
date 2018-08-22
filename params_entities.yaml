@@ -22,8 +22,7 @@ def_tokenizer_name: './output/tokenizer_entities.pickle'
 
 max_utt_len: 38
 test_size: 0.05
-num_tags: 6
-CRF: False
+CRF: True
 
 UNK: '_UNK'
 UNK_ID: 0
