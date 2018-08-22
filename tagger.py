@@ -32,14 +32,14 @@ def init(dataset, unknown_tag):
 
 
 def save(tokenizer, tokenizer_name):
-    print('Saving tokenizer object.')
+    print('Saving tokenizer object ({}).'.format(tokenizer_name))
     with open(tokenizer_name, 'wb') as handle:
         pickle.dump(tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
 # Inicialización del universo de palabras
 def read(tokenizer_name):
-    print('Loading tokenizer object.')
+    print('Loading tokenizer object ({})'.format(tokenizer_name))
     with open(tokenizer_name, 'rb') as handle:
         tokenizer = pickle.load(handle)
     return tokenizer

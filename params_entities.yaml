@@ -29,7 +29,7 @@ output_vocabulary: 'diccionario_entities.txt'
 def_nn_name: './output/dnn_entities.h5'
 def_tokenizer_name: './output/tokenizer_entities.pickle'
 
-largo_max: 40
+max_utt_len: 40
 test_size: 0.05
 num_tags: 6
 CRF: False

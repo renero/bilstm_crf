@@ -7,6 +7,7 @@ amr_header: 'amr_accion'
 
 # What tags do I want to use for prediction with this network?
 learn_tags:
+  - 'x'
   - 'aa'
   - 'ac'
   - 'ad'
@@ -15,11 +16,11 @@ learn_tags:
   - 'an'
   - 'ar'
   - 'asi'
-  - 'asnc'
   - 'asr'
-  - 'x'
+  - 'asnc'
 
 amr:
+  'x': 'O'
   'aa': 'A-AMPL'
   'ac': 'A-CADC'
   'ad': 'A-ERR_DAT'
@@ -28,9 +29,8 @@ amr:
   'an': 'A-NEWUSR'
   'ar': 'A-ROBO'
   'asi': 'A-INC_BNF'
-  'asnc': 'A-CANC'
   'asr': 'A-RENOV'
-  'x': 'O'
+  'asnc': 'A-CANC'
 
 # Specify which one is the wildcard tag not carrying encoding.
 void_tag: 'x'
@@ -39,9 +39,9 @@ output_vocabulary: 'diccionario_actions.txt'
 def_nn_name: './output/dnn_actions.h5'
 def_tokenizer_name: './output/tokenizer_actions.pickle'
 
-largo_max: 40
+max_utt_len: 38
 test_size: 0.05
-CRF: False
+CRF: True
 
 _PAD: '_PAD'
 _GO: '_GO'

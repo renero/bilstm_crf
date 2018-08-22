@@ -29,7 +29,7 @@ class Model:
             Embedding(
                 params['vocabulary_size'],
                 self._embedded_size,
-                input_length=params['largo_max']))
+                input_length=params['max_utt_len']))
         self.model.add(
             Bidirectional(
                 LSTM(self._bidirectional_size, return_sequences=True)))
@@ -83,7 +83,7 @@ class Model:
         tratada = tagger.cleanup(sentence)
         test = pad_sequences(
             self.tokenizer.texts_to_sequences(np.array([tratada])),
-            maxlen=params['largo_max'],
+            maxlen=params['max_utt_len'],
             padding='post')
         predict = self.model.predict(test)
         traduccion = []
