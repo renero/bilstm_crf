@@ -1,5 +1,4 @@
-working_path: '/Users/renero/Code/SA_PoC/model/model_evaluation/bilstm_crf'
-input_filename: 'resultado_cruce.csv'
+input_filename: '/Users/renero/Code/SA_PoC/model/model_evaluation/bilstm_crf/input/resultado_cruce.csv'
 
 # Tags to be used by this network
 tag_header: 'tag_condicionante'
@@ -20,9 +19,9 @@ amr:
 # Specify which one is the wildcard tag not carrying encoding.
 void_tag: 'x'
 
-output_vocabulary: 'diccionario_cond.txt'
-def_nn_name: './output/dnn_conds.h5'
-def_tokenizer_name: './output/tokenizer_cond.pickle'
+output_vocabulary: '/Users/renero/Code/SA_PoC/results/trained_networks/diccionario_cond.txt'
+def_nn_name: '/Users/renero/Code/SA_PoC/results/trained_networks/dnn_conds.h5'
+def_tokenizer_name: '/Users/renero/Code/SA_PoC/results/trained_networks/tokenizer_cond.pickle'
 
 max_utt_len: 38
 test_size: 0.05

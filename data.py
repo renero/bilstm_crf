@@ -8,7 +8,6 @@ import numpy as np
 import pandas as pd
 from tagger import cleanup
 
-from os.path import join
 from sklearn.model_selection import train_test_split
 
 
@@ -34,11 +33,7 @@ class Data:
         """Prepare the input datasets, and the vocabulary"""
         print('Reading input datasets', flush=True)
         datos = pd.read_csv(
-            join(
-                join(self.params['working_path'], 'input'),
-                self.params['input_filename']),
-            sep=',',
-            encoding='utf-8')
+            self.params['input_filename'], sep=',', encoding='utf-8')
 
         # Seleccionamos las columnas
         tag_header = self.params['tag_header']
