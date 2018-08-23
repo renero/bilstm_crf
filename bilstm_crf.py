@@ -41,7 +41,7 @@ else:
     model.load(data.params['def_nn_name'], data.params)
     sentence = input('Enter command: ')
     tagging = model.predict(sentence, data.params)
+    amr_exp = tagger.expand_amr(tagging, data.params)
     print(
         'sentence: {}\ntagging.: {}\namr.....: {}'.format(
-            sentence, tagging, tagger.expand_amr(tagging, data.params)),
-        flush=True)
+            sentence, tagging, amr_exp), flush=True)

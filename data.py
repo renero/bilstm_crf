@@ -70,16 +70,6 @@ class Data:
         self.sets['amr_test'] = A_tst
 
         return self
-        # if load_tokenizer is False:
-        #     self.tokenizer = tagger.init(datasets['utt_train']['frase'],
-        #                                  self.params['UNK'])
-        # else:
-        #     self.tokenizer = tagger.read(self.params['def_tokenizer_name'])
-        # datasets = self.encode(datasets)
-
-    # def save_tokenizer(self, tokenizer_filename):
-    #     tagger.save(self.tokenizer, tokenizer_filename)
-    #     return
 
     def info(self, datasets):
         len_total = len(datasets['utt_train']) + len(datasets['utt_test'])
