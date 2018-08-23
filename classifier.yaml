@@ -1,0 +1,4 @@
+conf_files:
+  actions: /Users/renero/Code/SA_PoC/model/model_evaluation/bilstm_crf/params_actions.yaml
+  entities: /Users/renero/Code/SA_PoC/model/model_evaluation/bilstm_crf/params_entities.yaml
+  conds: /Users/renero/Code/SA_PoC/model/model_evaluation/bilstm_crf/params_conditionings.yaml
