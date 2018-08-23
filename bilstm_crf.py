@@ -14,7 +14,7 @@ from docopt import docopt
 
 from data import Data
 from model import Model
-from tagger import Tagger
+from tagger import Tagger, expand_amr
 
 # sys.argv = ["bilstm_crf.py", "test", "params_conditionings.yaml"]
 
@@ -38,10 +38,12 @@ elif arguments['test'] is True:
     model.load(data.params['def_nn_name'], data.params)
     model.test(data, tagger)
 else:
+    tagger.load(data.params['def_tokenizer_name'])
     model.load(data.params['def_nn_name'], data.params)
     sentence = input('Enter command: ')
-    tagging = model.predict(sentence, data.params)
-    amr_exp = tagger.expand_amr(tagging, data.params)
+    tagging = model.predict(sentence, data.params, tagger.tokenizer)
+    amr_exp = expand_amr(tagging, data.params)
     print(
         'sentence: {}\ntagging.: {}\namr.....: {}'.format(
-            sentence, tagging, amr_exp), flush=True)
+            sentence, tagging, amr_exp),
+        flush=True)
