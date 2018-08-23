@@ -39,11 +39,9 @@ for nn_name in params['conf_files'].keys():
     print('> Loading network {}'.format(nn_name))
     network_params_file = params['conf_files'][nn_name]
     data[nn_name] = Data().init(network_params_file, load_dataset=False)
-    amr[nn_name] = Tagger()
-    model[nn_name] = Model()
-    amr[nn_name].load(data[nn_name].params['def_tokenizer_name'])
-    model[nn_name].load(data[nn_name].params['def_nn_name'],
-                        data[nn_name].params)
+    amr[nn_name] = Tagger().load(data[nn_name].params['def_tokenizer_name'])
+    model[nn_name] = Model().load(data[nn_name].params['def_nn_name'],
+                                  data[nn_name].params)
 
 sentence = input('Enter command: ')
 print('sentence....:', sentence)

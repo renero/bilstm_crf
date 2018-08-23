@@ -134,3 +134,4 @@ class Model:
                 compile=True)
         else:
             self.model = load_model(nn_filename, compile=True)
+        return self
