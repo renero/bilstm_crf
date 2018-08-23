@@ -97,7 +97,7 @@ class Model:
         return traduccion
 
     def save(self, nn_filename):
-        print('Saving trained network.')
+        print('Saving trained network to {}'.format(nn_filename))
         self.model.save(nn_filename)
 
     def create_custom_objects(self):

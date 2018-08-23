@@ -19,7 +19,7 @@ class Data:
     def __init__(self):
         pass
 
-    def init(self, params_fname=None):
+    def init(self, params_fname=None, load_dataset=True):
         filename = "params.yaml" if params_fname is None else params_fname
         print('Loading parameters from: {}'.format(filename))
         with open(filename, 'r') as ymlfile:
@@ -27,11 +27,16 @@ class Data:
         np.random.seed(1337)
         self.params['learn_tags'] = list(self.params['amr'].keys())
         self.params['num_tags'] = len(self.params['learn_tags'])
-        return self.prepare()
+        if load_dataset is True:
+            return self.prepare()
+        else:
+            return self
 
     def prepare(self):
         """Prepare the input datasets, and the vocabulary"""
-        print('Reading input datasets', flush=True)
+        print(
+            'Reading input dataset: {}'.format(self.params['input_filename']),
+            flush=True)
         datos = pd.read_csv(
             self.params['input_filename'], sep=',', encoding='utf-8')
 
